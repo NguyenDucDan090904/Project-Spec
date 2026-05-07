@@ -11,6 +11,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Queue\Middleware\RateLimited;
 
 class SendCampaignEmail implements ShouldQueue
@@ -31,10 +32,35 @@ class SendCampaignEmail implements ShouldQueue
     {
         // Thực hiện gửi mail thực tế
         Mail::to($this->subscriber->email)->send(new CampaignMail($this->campaign));
+        // Cập nhật trạng thái THÀNH CÔNG trong bảng trung gian
+        DB::table('campaign_recipients')
+            ->where('campaign_id', $this->campaign->id)
+            ->where('subscriber_id', $this->subscriber->id)
+            ->update(['status' => 'sent']);
+
+        // Tăng biến đếm trong bảng campaigns
+        $this->campaign->increment('sent_count');
+
+        // Kiểm tra nếu đã gửi xong tất cả thì đổi trạng thái Campaign
+        if ($this->campaign->sent_count >= $this->campaign->total_recipients) {
+            $this->campaign->update(['status' => 'completed']);
+        }
     }
 
     public function middleware()
     {
         return [new RateLimited('mailtrap-limit')];
+    }
+
+    public function failed($exception)
+    {
+        // Cập nhật trạng thái THẤT BẠI vào bảng trung gian
+        DB::table('campaign_recipients')
+            ->where('campaign_id', $this->campaign->id)
+            ->where('subscriber_id', $this->subscriber->id)
+            ->update([
+                'status' => 'failed',
+                'error_message' => substr($exception->getMessage(), 0, 255)
+            ]);
     }
 }

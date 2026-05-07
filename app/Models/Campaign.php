@@ -14,6 +14,8 @@ class Campaign extends Model
         'body',
         'send_at',
         'status',
+        'total_recipients',
+        'sent_count',
         'created_by',
     ];
 
