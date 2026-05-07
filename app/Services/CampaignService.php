@@ -3,15 +3,15 @@
 namespace App\Services;
 
 use App\Models\Campaign;
+use App\Jobs\SendCampaignEmail;
 use Illuminate\Support\Facades\DB;
 
 class CampaignService
 {
     public function createCampaign(array $data)
     {
-        // Dùng Transaction để đảm bảo nếu lưu bảng trung gian lỗi thì bảng Campaign cũng sẽ Rollback
         return DB::transaction(function () use ($data) {
-            // 1. Lưu vào bảng campaigns
+            // 1. Lưu Campaign
             $campaign = Campaign::create([
                 'title'      => $data['title'],
                 'body'       => $data['body'],
@@ -20,10 +20,17 @@ class CampaignService
                 'created_by' => auth()->id(),
             ]);
 
-            // 2. Lưu toàn bộ người nhận được chọn vào bảng trung gian
+            // 2. Lưu quan hệ vào bảng trung gian và đẩy Job vào Queue
             if (!empty($data['subscriber_ids'])) {
-                // Laravel sẽ tự động lặp qua mảng subscriber_ids và insert vào bảng trung gian
                 $campaign->subscribers()->attach($data['subscriber_ids']);
+
+                // Lấy danh sách subscribers vừa lưu để duyệt
+                $subscribers = $campaign->subscribers;
+
+                foreach ($subscribers as $subscriber) {
+                    // Đẩy tác vụ vào bảng 'jobs'
+                    SendCampaignEmail::dispatch($campaign, $subscriber);
+                }
             }
 
             return $campaign;
