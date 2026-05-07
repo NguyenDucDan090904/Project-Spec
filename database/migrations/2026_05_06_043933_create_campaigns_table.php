@@ -18,7 +18,7 @@ class CreateCampaignsTable extends Migration
             $table->string('title');
             $table->text('body');
             $table->dateTime('send_at');
-            $table->enum('status', ['draft', 'scheduled', 'processing', 'sent', 'failed', 'cancelled'])->default('draft');
+            $table->enum('status', ['draft', 'scheduled', 'processing', 'sent', 'failed', 'cancelled', 'completed'])->default('draft');
             $table->foreignId('created_by')->constrained('users'); // Giả định admin là bảng users
             $table->timestamps();
         });
