@@ -1,11 +1,12 @@
-<x-app-layout>
-    <!-- PHẦN NÀY ĐỂ FIX LỖI $header ---->
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Tạo Chiến Dịch Mới') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
+@section('header')
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        {{ __('Tạo Chiến Dịch Mới') }}
+    </h2>
+@endsection
+
+@section('content')
     <!-- Toàn bộ phần này sẽ đổ vào biến slot trong layout -->
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -19,42 +20,56 @@
 
                 <form action="{{ route('admin.campaigns.store') }}" method="POST">
                     @csrf
-                    <div class="grid grid-cols-1 gap-6">
+                    <div class="grid grid-cols-1 gap-6 max-w-3xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-200">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Tiêu đề</label>
-                            <input type="text" name="title" value="{{ old('title') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            @error('title') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            <label class="block text-sm font-semibold text-gray-800 mb-1">Tiêu đề chiến dịch</label>
+                            <input type="text" name="title" value="{{ old('title') }}"
+                                   placeholder="VD: Bản tin tháng 5/2026"
+                                   class="block w-full p-3.5 rounded-lg border-2 border-gray-400 shadow-sm focus:border-indigo-600 focus:ring-indigo-600 transition duration-150">
+                            @error('title') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Nội dung</label>
-                            <textarea name="body" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('body') }}</textarea>
-                            @error('body') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                            <label class="block text-sm font-semibold text-gray-800 mb-1">Nội dung Email</label>
+                            <textarea name="body" rows="5"
+                                      placeholder="Nhập nội dung thông điệp tại đây..."
+                                      class="block w-full p-4 rounded-lg border-2 border-gray-400 shadow-sm focus:border-indigo-600 focus:ring-indigo-600 transition duration-150">{{ old('body') }}</textarea>
+                            @error('body') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Thời gian gửi</label>
-                            <input type="datetime-local" name="send_at" value="{{ old('send_at') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            @error('send_at') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                        </div>
-
-                        <!-- AJAX Search Subscribers -->
-                        <div class="relative">
-                            <label class="block text-sm font-medium text-gray-700">Tìm & Chọn người nhận</label>
-                            <input type="text" id="search-input" placeholder="Nhập tên hoặc email..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-
-                            <div id="search-results" class="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 hidden shadow-lg max-h-48 overflow-y-auto">
-                                <!-- Kết quả AJAX -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-800 mb-1">Thời gian gửi</label>
+                                <input type="datetime-local" name="send_at" value="{{ old('send_at') }}"
+                                       class="block w-full p-3.5 rounded-lg border-2 border-gray-400 shadow-sm focus:border-indigo-600 focus:ring-indigo-600 transition duration-150">
+                                @error('send_at') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
                             </div>
                         </div>
 
-                        <!-- Danh sách badge đã chọn -->
-                        <div id="selected-list" class="flex flex-wrap gap-2 mt-2"></div>
-                        @error('subscriber_ids') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
+                        <div class="relative">
+                            <label class="block text-sm font-semibold text-gray-800 mb-1">Tìm & Chọn người nhận</label>
+                            <div class="relative">
+                                <input type="text" id="search-input" placeholder="Gõ để tìm tên hoặc email..."
+                                       class="block w-full p-3.5 pl-10 rounded-lg border-2 border-gray-400 shadow-sm focus:border-indigo-600 focus:ring-indigo-600">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                                </div>
+                            </div>
 
-                        <div class="mt-4">
-                            <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                                Lưu Chiến Dịch
+                            <div id="search-results" class="absolute z-20 w-full bg-white border-2 border-indigo-200 rounded-lg mt-1 hidden shadow-xl max-h-60 overflow-y-auto">
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Đã chọn:</p>
+                            <div id="selected-list" class="flex flex-wrap gap-2 min-h-[40px] p-3 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                            </div>
+                            @error('subscriber_ids') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-100 flex justify-end">
+                            <button type="submit" class="w-full md:w-auto px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-lg hover:shadow-indigo-200 transition-all transform active:scale-95">
+                                Lưu & Lên lịch gửi
                             </button>
                         </div>
                     </div>
@@ -113,4 +128,4 @@
             };
         });
     </script>
-</x-app-layout>
+@endsection
