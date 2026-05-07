@@ -1,43 +1,79 @@
 # Campaign Management System - Laravel
 
-Một ứng dụng web Laravel mini chuyên tạo và quản lý **chiến dịch gửi thông báo / email** theo lịch trình (scheduled campaigns).
+A robust **Laravel** application for creating and managing scheduled email/notification campaigns with advanced backend features.
+
+![Project Banner](https://via.placeholder.com/800x400?text=Campaign+Management+System)
 
 ## ✨ Giới thiệu
 
-Dự án mô phỏng hệ thống gửi campaign (thông báo, email marketing) với đầy đủ các tính năng thực tế: tạo campaign, lên lịch gửi, xử lý queue, scheduler, cache, báo cáo và AJAX tương tác.
+Dự án là một **web application Laravel** cho phép Admin tạo chiến dịch (campaign), chọn danh sách người nhận, lên lịch gửi tự động theo thời gian (`send_at`). Hệ thống xử lý queue, scheduler, cache, báo cáo và tương tác AJAX.
 
-Đây là dự án thực hành chuyên sâu Laravel, tập trung vào các khái niệm quan trọng trong backend development.
+Đây là dự án thực hành chuyên sâu Laravel, tập trung vào kiến trúc sạch và các công cụ production-ready.
 
-## 🚀 Tính năng chính
+## 🚀 Tính năng nổi bật
 
-- **Quản lý Campaign**: Tạo chiến dịch, chọn người nhận, đặt lịch gửi (`send_at`)
-- **Queue & Job**: Gửi email/notification theo từng recipient bằng Laravel Queue
-- **Scheduler**: Cron job tự động quét và dispatch campaign đến hạn
-- **Dashboard**: Thống kê nhanh với Cache
-- **Reports**: Báo cáo chi tiết sử dụng Query Builder (Join, Group By, Aggregation)
-- **Notification System**: Người dùng xem và đánh dấu đã đọc thông báo
-- **Role-based Access Control**: Phân quyền rõ ràng giữa Admin và User
+- Tạo Campaign + chọn subscribers (AJAX search)
+- Lên lịch gửi tự động (`send_at`)
+- Queue System xử lý gửi mail/notification theo từng recipient
+- Scheduler tự động quét campaign đến hạn
+- Admin Dashboard với Cache
+- Reports nâng cao (Query Builder)
+- Mark as read thông báo (AJAX)
+- Role-based Access Control (Admin & User)
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Laravel (phiên bản mới nhất)
-- **Backend**: PHP 8.2+
+- **Backend**: PHP 8.2+, **Laravel** (Latest)
+- **Architecture**: MVC + **Repository Pattern**
 - **Database**: MySQL
 - **Queue**: Laravel Queue (Database driver)
-- **Frontend**: Blade + jQuery + AJAX
-- **Authentication**: Laravel Breeze / Laravel UI
-- **Others**: Eloquent ORM, Form Request, Database Transaction, Cache, Scheduler
+- **Containerization**: **Docker** & **Docker Compose**
+- **Frontend**: Blade, jQuery, AJAX
+- **Others**: Eloquent ORM, Query Builder, Cache, Scheduler, Database Transactions, Form Request Validation
 
-## 📋 Yêu cầu hệ thống
+## 📋 Prerequisites
 
-- PHP 8.2+
-- Composer
-- MySQL
-- Node.js & npm (để compile assets)
+- Docker & Docker Compose
+- Git
 
-## 🛠️ Cài đặt & Chạy dự án
+## 🚀 Installation & Running (Using Docker)
 
 ### 1. Clone repository
 ```bash
-git clone https://github.com/NguyenDucDan090904/[tên-repo].git
-cd [tên-repo]
+git clone https://github.com/NguyenDucDan090904/Project-Spec.git
+cd Project-Spec
+```
+### 2. Copy environment file
+```bash
+cp .env.example .env
+```
+### 3. Build and run Docker containers
+```bash
+docker-compose up --build -d
+```
+### 4. Install dependencies & Setup Laravel
+```bash
+# Cài đặt Composer packages
+docker-compose exec app composer install
+
+# Generate application key
+docker-compose exec app php artisan key:generate
+
+# Chạy migration và seed dữ liệu
+docker-compose exec app php artisan migrate --seed
+
+# Tạo symbolic link cho storage
+docker-compose exec app php artisan storage:link
+```
+### 5. Run Queue Worker & Scheduler
+Mở 2 terminal riêng biệt:
+
+Terminal 1 - Queue Worker:
+```bash
+docker-compose exec app php artisan queue:work
+```
+Terminal 2 - Scheduler:
+```bash
+docker-compose exec app php artisan schedule:work
+```
+Ứng dụng sẽ chạy tại: 🌐 http://localhost:8000
