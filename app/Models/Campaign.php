@@ -24,6 +24,8 @@ class Campaign extends Model
      */
     public function subscribers()
     {
-        return $this->belongsToMany(Subscriber::class, 'campaign_recipients');
+        return $this->belongsToMany(Subscriber::class, 'campaign_recipients')
+            -> withPivot('status', 'error_message')
+            -> withTimestamps();
     }
 }
