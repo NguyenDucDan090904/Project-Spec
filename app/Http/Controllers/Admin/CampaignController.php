@@ -6,15 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\CreateCampaignRequest;
 use App\Models\Campaign;
 use App\Services\CampaignService;
-use App\Models\Subscriber;
+use App\Repositories\Contracts\CampaignRepositoryInterface;
 
 class CampaignController extends Controller
 {
     protected $campaignService;
+    protected $campaignRepo;
 
-    public function __construct(CampaignService $campaignService)
-    {
+    public function __construct(
+        CampaignService $campaignService,
+        CampaignRepositoryInterface $campaignRepo
+    ) {
         $this->campaignService = $campaignService;
+        $this->campaignRepo = $campaignRepo;
     }
 
     public function create()
@@ -30,24 +34,34 @@ class CampaignController extends Controller
 
     public function index()
     {
-        // Lấy danh sách campaign, sắp xếp cái mới nhất lên đầu
-        $campaigns = Campaign::orderBy('created_at', 'desc')->paginate(10);
+        // Lấy danh sách qua Repo
+        $campaigns = $this->campaignRepo->getPaginated(10);
 
         return view('admin.campaigns.index', compact('campaigns'));
     }
 
     public function show(Campaign $campaign)
     {
-        // Lấy danh sách người nhận kèm trạng thái từ bảng trung gian
-        $recipients = $campaign->subscribers()
-            ->withPivot('status', 'error_message')
-            ->paginate(10);
+        // Lấy danh sách người nhận qua Repo
+        $recipients = $this->campaignRepo->getRecipientsPaginated($campaign, 10);
 
-        // Tính toán phần trăm hoàn thành
+        // Tính phần trăm trên Controller (hoặc có thể đưa vào Helper/Model Attribute)
         $progress = $campaign->total_recipients > 0
             ? round(($campaign->sent_count / $campaign->total_recipients) * 100)
             : 0;
 
         return view('admin.campaigns.show', compact('campaign', 'recipients', 'progress'));
+    }
+
+    public function retryAll(Campaign $campaign)
+    {
+        $this->campaignService->retryFailedEmails($campaign);
+        return back()->with('success', 'Hệ thống đang tiến hành gửi lại toàn bộ email bị lỗi.');
+    }
+
+    public function retrySingle(Campaign $campaign, $subscriberId)
+    {
+        $this->campaignService->retryFailedEmails($campaign, $subscriberId);
+        return back()->with('success', 'Đang gửi lại email cho người nhận này.');
     }
 }
