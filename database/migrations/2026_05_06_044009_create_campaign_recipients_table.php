@@ -17,7 +17,9 @@ class CreateCampaignRecipientsTable extends Migration
             $table->id();
             $table->foreignId('campaign_id')->constrained()->onDelete('cascade');
             $table->foreignId('subscriber_id')->constrained()->onDelete('cascade');
-            $table->enum('status', ['pending', 'sent', 'failed'])->default('pending');
+            $table->enum('status', ['pending', 'sending', 'sent', 'failed'])->default('pending');
+            $table->text('error_message')->nullable();
+
             $table->timestamp('sent_at')->nullable();
             $table->timestamps();
         });
