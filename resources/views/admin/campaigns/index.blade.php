@@ -6,7 +6,7 @@
 
             <div class="mb-8 flex justify-between items-end">
                 <div>
-                    <h1 class="text-3xl font-black text-slate-900 shadow-sm">Bảng Điều Khiển</h1>
+                    <h1 class="text-3xl font-black text-slate-900 shadow-sm">Quản lý chiến dịch</h1>
                     <p class="text-slate-500 font-medium mt-1">Quản lý hiệu suất và các đợt phát hành Email</p>
                 </div>
                 <a href="{{ route('admin.campaigns.create') }}"
