@@ -4,6 +4,9 @@ import Alpine from 'alpinejs';
 
 import $ from 'jquery';
 
+require('./bootstrap');
+
+
 window.Alpine = Alpine;
 
 Alpine.start();

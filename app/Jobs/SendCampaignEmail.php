@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\CampaignProgressUpdated;
 use App\Mail\CampaignMail;
 use App\Models\Campaign;
 use App\Models\Subscriber;
@@ -45,6 +46,9 @@ class SendCampaignEmail implements ShouldQueue
         if ($this->campaign->sent_count >= $this->campaign->total_recipients) {
             $this->campaign->update(['status' => 'completed']);
         }
+
+        // Sau khi update sent_count xong, phát tín hiệu real-time
+        event(new CampaignProgressUpdated($this->campaign->fresh()));
     }
 
     public function middleware()

@@ -105,3 +105,33 @@
         </div>
     </div>
 @endsection
+
+@section('scripts')
+    <script type="module">
+        // Lắng nghe kênh 'campaign.{id}'
+        Echo.channel('campaign.{{ $campaign->id }}')
+            .listen('CampaignProgressUpdated', (e) => {
+                console.log('Nhận dữ liệu mới:', e);
+
+                // 1. Cập nhật thanh tiến độ (Thanh ngang)
+                const progressBar = document.getElementById('progress-bar');
+                if(progressBar) {
+                    progressBar.style.width = e.progress + '%';
+                }
+
+                // 2. Cập nhật con số % ở vòng tròn hoặc văn bản
+                const progressText = document.getElementById('progress-text');
+                if(progressText) {
+                    progressText.innerText = e.progress + '%';
+                }
+
+                // 3. Cập nhật con số sent_count / total_recipients
+                const sentCountText = document.getElementById('sent-count-text');
+                if(sentCountText) {
+                    sentCountText.innerText = e.campaign.sent_count;
+                }
+
+                // 4. Nếu muốn xịn hơn, bạn có thể reload nhẹ danh sách hoặc đổi màu status
+            });
+    </script>
+@endsection
