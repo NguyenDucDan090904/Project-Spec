@@ -67,4 +67,5 @@ class SendCampaignEmail implements ShouldQueue
                 'error_message' => substr($exception->getMessage(), 0, 255)
             ]);
     }
+
 }

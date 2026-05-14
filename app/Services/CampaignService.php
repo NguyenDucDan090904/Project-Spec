@@ -71,4 +71,26 @@ class CampaignService
             return true;
         });
     }
+
+    /**
+     * Xử lý gửi chiến dịch (Đẩy vào hàng đợi)
+     */
+    public function sendCampaign(Campaign $campaign)
+    {
+        // 1. Cập nhật trạng thái chiến dịch sang 'processing' để tránh quét lặp
+        $campaign->update(['status' => 'processing']);
+
+        // 2. Lấy danh sách người nhận từ bảng trung gian
+        // Giả sử bạn đã định nghĩa quan hệ 'subscribers' trong Model Campaign
+        $subscribers = $campaign->subscribers;
+
+        foreach ($subscribers as $subscriber) {
+            // 3. Đẩy từng email vào hàng đợi (Queue)
+            // Bạn hãy thay thế 'SendCampaignEmail' bằng tên Job thực tế bạn đã tạo
+            dispatch(new \App\Jobs\SendCampaignEmail($campaign, $subscriber));
+        }
+
+        // 4. (Tùy chọn) Cập nhật trạng thái hoàn thành sau khi đã đẩy hết vào Queue
+        // $campaign->update(['status' => 'sent']);
+    }
 }

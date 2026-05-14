@@ -24,11 +24,19 @@ class CreateCampaignRequest extends FormRequest
     public function rules()
     {
         return [
-            'title'          => 'required|string|max:255',
-            'body'           => 'required|string',
-            'send_at'        => 'required|after:now',
-            'subscriber_ids' => 'required|array',
+            'title'            => 'required|string|max:255',
+            'body'             => 'required|string',
+            'subscriber_ids'   => 'required|array|min:1',
             'subscriber_ids.*' => 'exists:subscribers,id',
+            'scheduled_at'     => 'nullable|date|after_or_equal:now',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'scheduled_at.after_or_equal' => 'Thời gian lên lịch phải ở tương lai.',
+            'subscriber_ids.required'      => 'Vui lòng chọn ít nhất một người nhận.',
         ];
     }
 }

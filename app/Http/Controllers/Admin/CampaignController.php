@@ -28,8 +28,33 @@ class CampaignController extends Controller
 
     public function store(CreateCampaignRequest $request)
     {
-        $this->campaignService->createCampaign($request->validated());
-        return redirect()->route('admin.campaigns.index')->with('success', 'Chiến dịch đã được lên lịch!');
+        // 1. Lấy dữ liệu đã validate
+        $data = $request->validated();
+
+        // Đảm bảo status mặc định là pending
+        $data['status'] = 'pending';
+        $data['created_by'] = auth()->id();
+
+        // 2. Tạo Campaign
+        $campaign = Campaign::create($data);
+
+        // 3. Lưu danh sách người nhận vào bảng campaign_recipients
+        // Giả sử bạn có quan hệ 'subscribers' trong model Campaign
+        if ($request->has('subscriber_ids')) {
+            $campaign->subscribers()->attach($request->subscriber_ids);
+        }
+
+        // 4. Xử lý gửi mail hoặc lên lịch
+        if (empty($request->scheduled_at)) {
+            // Gửi ngay
+            $this->campaignService->sendCampaign($campaign);
+            $message = 'Chiến dịch đã bắt đầu gửi!';
+        } else {
+            // Chỉ thông báo, vì Command sẽ quét và gửi sau
+            $message = 'Chiến dịch đã được lên lịch thành công!';
+        }
+
+        return redirect()->route('admin.campaigns.index')->with('success', $message);
     }
 
     public function index()

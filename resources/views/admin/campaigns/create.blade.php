@@ -67,6 +67,12 @@
                             @error('subscriber_ids') <span class="text-red-500 text-sm mt-1 block">{{ $message }}</span> @enderror
                         </div>
 
+                        <div class="form-group mb-3">
+                            <label for="scheduled_at">Lên lịch gửi (Bỏ trống nếu muốn gửi ngay):</label>
+                            <input type="datetime-local" name="scheduled_at" id="scheduled_at" class="form-control"
+                                   value="{{ old('scheduled_at') }}">
+                        </div>
+
                         <div class="pt-4 border-t border-gray-100 flex justify-end">
                             <button type="submit" class="w-full md:w-auto px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-lg hover:shadow-indigo-200 transition-all transform active:scale-95">
                                 Lưu & Lên lịch gửi

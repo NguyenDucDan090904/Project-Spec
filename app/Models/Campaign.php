@@ -17,7 +17,13 @@ class Campaign extends Model
         'total_recipients',
         'sent_count',
         'created_by',
+        'scheduled_at',
     ];
+
+    protected $casts = [
+        'scheduled_at' => 'datetime', // Giúp tự động parse thành object Carbon
+    ];
+
 
     /**
      * Quan hệ n-n với Subscriber thông qua bảng recipients
